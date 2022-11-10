@@ -1,16 +1,14 @@
 const express = require("express");
 
-const {
-  signupAccount,
-  loginAccount,
-} = require("../controllers/auth/accountController");
-const { loginByGithub } = require("../controllers/auth/githubController");
+const {signupAccount, loginAccount} = require("../controllers/auth/auth.Controller");
+const { loginByGithub } = require("../controllers/auth/github.Controller");
+const {signupValidator, loginValidator} = require('../controllers/auth/auth.dto');
 
 const router = express.Router();
 
-router.post("/login", loginAccount);
+router.post("/login", loginValidator, loginAccount);
 
-router.post("/signup", signupAccount);
+router.post("/signup", signupValidator, signupAccount);
 
 router.get("/github", (req, res) => {
   const url = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENTID}&redirect_uri=${process.env.GITHUB_REDIRECT_URI}`;

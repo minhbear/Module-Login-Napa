@@ -30,36 +30,25 @@ const getGithubUser = async (access_token) => {
   return data;
 };
 
-const loginByGithub = async (req, res, next) => {
-  const code = req.query.code;
-  try {
-    const token = await getAccessToken(code);
-    const githubData = await getGithubUser(token);
-    if (githubData) {
-      const githubEmail = githubData.email;
-      const account = await GithubAccount.findOne({ email: githubEmail });
+const createGithubAccount = async (githubData) => {
+  const githubEmail = githubData.email;
+  let account = await GithubAccount.findOne({ email: githubEmail });
 
-      if (!account) {
-        const newAccount = await GithubAccount.create({
-          username: githubData.login,
-          email: githubEmail,
-          role: 0,
-          status: 1,
-        });
-      } else {
-        if (account.status === 0) {
-          throw Error("This account is not active");
-        }
-      }
-    }
-
-    res.status(200).json({ message: "login success" });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({ error: error.message });
+  if (!account) {
+    account = await GithubAccount.create({
+      username: githubData.login,
+      email: githubEmail,
+      role: 0,
+      status: 1,
+    });
   }
+
+  return account;
+
 };
 
 module.exports = {
-  loginByGithub
+  getAccessToken,
+  getGithubUser,
+  createGithubAccount
 };

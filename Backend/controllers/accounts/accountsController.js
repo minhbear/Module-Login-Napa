@@ -1,8 +1,16 @@
 const bcrypt = require("bcrypt");
 
-const { isAdmin, canViewAccount } = require('../permissions/accounts');
-const Account = require('../model/accountModel');
-const GithubAccount = require('../model/githubModel')
+const { isAdmin, canViewAccount } = require('../../permissions/accounts');
+const Account = require('../../model/accountModel');
+const GithubAccount = require('../../model/githubModel')
+
+const {
+    getAllAccounts, 
+    findAccount,
+    updateAccountFields,
+    deleteAccountById,
+    activeAccountById
+} = require('./accountsService');
 
 const canGetAllAccounts = async (req, res, next) => {
     try {
@@ -10,14 +18,13 @@ const canGetAllAccounts = async (req, res, next) => {
         if(!isAdmin(account.role)){
             res.status(401).json({message: "Not allowed"});
         }else{
-            const accounts = await Account.find();
-            const githubAccounts = await GithubAccount.find();
+            const listAccounts = await getAllAccounts();
 
-            res.status(200).json({accounts, githubAccounts})
+            res.status(200).json(listAccounts);
         }
     } catch (error) {
         console.log(error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -28,16 +35,13 @@ const viewAccount = async (req, res, next) => {
         if(!canViewAccount(account, id)){
             res.status(401).json({message: "Not allowed"});
         }else{
-            let account = await Account.findById(id);
-            if(account === null){
-                account = await GithubAccount.findById(id)
-            }
-            res.json(account);
+            const account = await findAccount(id);
+            res.status(200).json(account);
         }
         
     } catch (error) {
         console.log(error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -49,21 +53,13 @@ const updateAccount = async (req, res, next) => {
             res.status(401).json({message: "Not allowed"});
         }else{
             const {username, email, password, role} = req.body;
-            const salt = await bcrypt.genSalt(10);
-            const hash = await bcrypt.hash(password, salt);
-
-            const updateAccount = await Account.findOneAndUpdate({_id: id}, {"$set": {
-                username, 
-                email,
-                password: hash,
-                role 
-            }});
+            const update = await updateAccountFields(username, email, password, role, id);
 
             res.status(200).json({message: "Update success"});
         }
     } catch (error) {
         console.log(error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -74,13 +70,13 @@ const deleteAccount = async (req, res, next) => {
         if(!isAdmin(account.role)){
             res.status(401).json({message: "Not allowed"});
         }else{
-            await Account.findByIdAndDelete(id);
+            const deleteAccount = await deleteAccountById(id, "account");
 
             res.status(200).json({message: "delete success"});
         }
     } catch (error) {
         console.log(error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -91,13 +87,13 @@ const deleteGithubAccount = async (req, res, next) => {
         if(!isAdmin(account.role)){
             res.status(401).json({message: "Not allowed"});
         }else{
-            await GithubAccount.findByIdAndDelete(id);
+            const deleteAccount = await deleteAccountById(id, "githubAccount");
 
             res.status(200).json({message: "delete success"});
         }
     } catch (error) {
         console.log(error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -109,13 +105,12 @@ const activeAccount = async (req, res, next) => {
             res.status(401).json({message: "Not allowed"});
         }else{
             const {status} = req.body;
-            const statusAccount = await Account.updateOne({_id: id}, {status: status});
-
+            const activeAccount = await activeAccountById(id, "account", status);
             res.status(200).json({message: "change status account success"});
         }
     } catch (error) {
         console.log(error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -127,13 +122,14 @@ const activeGithubAccount = async (req, res, next) => {
             res.status(401).json({message: "Not allowed"});
         }else{
             const {status} = req.body;
-            const statusAccount = await GithubAccount.updateOne({_id: id}, {status: status});
+            const activeAccount = await activeAccountById(id, "githubAccount", status);
+            
 
             res.status(200).json({message: "change status account success"});
         }
     } catch (error) {
         console.log(error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 

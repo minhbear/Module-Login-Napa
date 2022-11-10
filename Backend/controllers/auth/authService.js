@@ -1,18 +1,8 @@
 const Account = require('../../model/accountModel');
 const bcrypt = require("bcrypt");
-const validator = require('validator');
 
 //signup method
 const signup = async function(username, email, password){
-    
-    if(!email || !password || !username){
-        throw Error("All fields must be filled");
-    }
-
-    if(!validator.isEmail(email)) {
-        throw Error("Invalid Email");
-    }
-
     const exists = await Account.findOne({ email });
 
     if(exists) {
@@ -30,10 +20,6 @@ const signup = async function(username, email, password){
 
 //login method
 const login = async function(email, password) {
-    if(!email || !password){
-        throw Error("All fields must be filled");
-    }
-
     const account = await Account.findOne({ email });
 
     if(!account){

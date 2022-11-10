@@ -2,8 +2,8 @@ const Account = require('../../model/accountModel');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 
-const { linkResetPass } = require('./password_system');
-const { sendEmail } = require('../../utils/sendEmail');
+const { linkResetPass, updatePassword } = require('./passService');
+const { sendEmail } = require('../../services/sendEmail');
 
 //forgot password
 const forgotPassword = async(req, res, next) => {
@@ -11,12 +11,12 @@ const forgotPassword = async(req, res, next) => {
         const {email} = req.body;
         const link = await linkResetPass(email);
 
-        await sendEmail(email, "Password Reset Link", link);
         // console.log(link);
+        await sendEmail(email, "Password Reset Link", link);
 
         res.status(200).json({message: "password reset link sent to your email account" });
     } catch (error) {
-        res.status(400).json({error: error.message});
+        res.status(500).json({error: error.message});
     }
 }
 
@@ -26,29 +26,12 @@ const resetPassword = async(req, res, next) => {
         const { id, token } = req.params;
         const { oldPassword, newPassword } = req.body;
 
-        const account = await Account.findById(id);
-        if(!account){
-            throw Error("Not valid id");
-        } 
-
-        const secret = process.env.JWT_SECRET + account.password;
-        const payload = jwt.verify(token, secret);
-
-        const match = await bcrypt.compare(oldPassword, account.password);
-
-        if(!match){
-            throw Error("Incorrect old password");
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(newPassword, salt);
-
-        const updateAccount = await Account.updateOne({ _id: id }, { password: hash });
+        const updateAccount = await updatePassword(id, token, oldPassword, newPassword);
 
         res.status(200).json({message: "change password success"});
 
     } catch (error) {
-        res.status(400).json({error: error.message});
+        res.status(500).json({error: error.message});
     }
 }
 

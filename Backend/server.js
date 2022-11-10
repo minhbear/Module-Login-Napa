@@ -1,5 +1,6 @@
 const express = require("express");
-const mongoose = require("mongoose");
+const {connectDB} = require('./middleware/mongoose');
+const {configExpress} = require('./middleware/configExpress');
 
 require("dotenv").config();
 
@@ -10,18 +11,17 @@ const AccountsRouter = require("./routes/accounts");
 
 const app = express();
 
-const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@login-module.fvco3rx.mongodb.net/?retryWrites=true&w=majority`;
-mongoose
-  .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then((result) => {
+connectDB()
+  .then(() => {
     console.log("Connect to database");
     app.listen(process.env.PORT);
     console.log("Listen in port " + process.env.PORT);
   })
-  .catch((error) => {
-    console.log(error);
-  });
+  .catch((err) => {
+    console.log(err)
+  })
 
+configExpress();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
