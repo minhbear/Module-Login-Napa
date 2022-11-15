@@ -1,9 +1,3 @@
-const bcrypt = require("bcrypt");
-
-const { isAdmin, canViewAccount } = require('../../permissions/accounts');
-const Account = require('../../model/accountModel');
-const GithubAccount = require('../../model/githubModel')
-
 const {
     getAllAccounts, 
     findAccount,
@@ -11,6 +5,8 @@ const {
     deleteAccountById,
     activeAccountById
 } = require('./accountsService');
+
+const {isAdmin, canViewAccount} = require('../../permissions/accounts')
 
 const canGetAllAccounts = async (req, res, next) => {
     try {

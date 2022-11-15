@@ -1,6 +1,6 @@
 const express = require("express");
 const {connectDB} = require('./middleware/mongoose');
-const {configExpress} = require('./middleware/configExpress');
+const morgan = require('morgan');
 
 require("dotenv").config();
 
@@ -11,19 +11,23 @@ const AccountsRouter = require("./routes/accounts");
 
 const app = express();
 
+//don't show the log when it is test
+if(process.env.NODE_ENV !== 'test') {
+  //use morgan to log at command line
+  app.use(morgan('combined')); //'combined' outputs the Apache style LOGs
+}
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 connectDB()
   .then(() => {
-    console.log("Connect to database");
     app.listen(process.env.PORT);
-    console.log("Listen in port " + process.env.PORT);
   })
   .catch((err) => {
     console.log(err)
   })
 
-configExpress();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 //routes
 app.use("/auth", AuthRouters);
@@ -36,3 +40,8 @@ app.use("/reset-password", ResetPassRouter);
 
 // /accounts
 app.use('/accounts', AccountsRouter);
+
+//testing
+module.exports = {
+  app
+}
