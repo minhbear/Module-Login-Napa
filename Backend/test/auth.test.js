@@ -24,22 +24,22 @@ describe("Auth", () => {
       })
   });
 
-  it("Can signup", (done) => {
-    chai.request(app)
-        .post("/auth/signup")
-        .send({
-            username: "nhatminh",
-            email: "minhnqnde160634@fpt.edu.vn",
-            password: "Minh0914121791"
-        })
-        .end((err, res) => {
-            res.should.have.status(200);
-            res.body.should.be.a('object');
-            res.body.should.have.property('username').eql("nhatminh");
-            res.body.should.have.property('email').eql("minhnqnde160634@fpt.edu.vn");
-            res.body.should.have.property('token');
+  // it("Can signup", (done) => {
+  //   chai.request(app)
+  //       .post("/auth/signup")
+  //       .send({
+  //           username: "nhatminh",
+  //           email: "minhnqnde160634@fpt.edu.vn",
+  //           password: "Minh0914121791"
+  //       })
+  //       .end((err, res) => {
+  //           res.should.have.status(200);
+  //           res.body.should.be.a('object');
+  //           res.body.should.have.property('username').eql("nhatminh");
+  //           res.body.should.have.property('email').eql("minhnqnde160634@fpt.edu.vn");
+  //           res.body.should.have.property('token');
 
-            done();
-        })
-  })
+  //           done();
+  //       })
+  // })
 });

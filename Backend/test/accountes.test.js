@@ -23,7 +23,7 @@ describe('Authoraization', () => {
 describe('Accounts', () => {
     describe('Admin Permission', () => {
         let token = '';
-        const id = "6367eea3748fb7ae77f89776";
+        const id = "637353a338b5a4d220a39564";
 
         before(function (done) {
             //login by admin
@@ -61,16 +61,16 @@ describe('Accounts', () => {
                 })
         })
 
-        it('Admin can delete account(github account)', (done) => {
-            chai.request(app)
-                .delete(`/accounts/delete/${id}`)
-                .set('Authorization', 'Bearer ' + token)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.property("message");
-                    done();
-                })
-        })
+        // it('Admin can delete account(github account)', (done) => {
+        //     chai.request(app)
+        //         .delete(`/accounts/delete/${id}`)
+        //         .set('Authorization', 'Bearer ' + token)
+        //         .end((err, res) => {
+        //             res.should.have.status(200);
+        //             res.body.should.have.property("message");
+        //             done();
+        //         })
+        // })
     })
 })
 
